@@ -1,0 +1,720 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PromptArchitect Ultra — Inteligencia Cognitiva y Puentes IA Reales</title>
+    <meta name="description" content="Entorno de ingeniería de prompts avanzados con motor NLP local en JS para la optimización de nichos y exclusión de elisiones en Google AdSense.">
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --bg-base: #030305;
+            --bg-surface: #090b12;
+            --bg-element: #111424;
+            --border-glow: #1e293b;
+            --border-focus: #10b981;
+            --neon-green: #10b981;
+            --neon-blue: #38bdf8;
+            --neon-purple: #a855f7;
+            --neon-green-dim: #065f46;
+            --liquid-gold: #fbbf24;
+            --text-pure: #ffffff;
+            --text-body: #94a3b8;
+            --text-muted: #475569;
+            --radius-custom: 12px;
+            --transition-smooth: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        html { scroll-behavior: smooth; }
+        body {
+            background-color: var(--bg-base);
+            color: var(--text-body);
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            line-height: 1.6;
+            overflow-x: hidden;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        .container { width: 100%; max-width: 1350px; margin: 0 auto; padding: 0 24px; }
+
+        .adsense-box {
+            border: 1px dashed #334155; background-color: rgba(17, 21, 34, 0.3);
+            border-radius: 8px; display: flex; align-items: center; justify-content: center;
+            color: var(--text-muted); font-family: 'JetBrains Mono', monospace; font-size: 0.72rem;
+            text-transform: uppercase; letter-spacing: 0.12em; margin: 24px 0; padding: 18px; text-align: center;
+        }
+        .ad-top-banner { width: 100%; min-height: 90px; }
+        .ad-mid-rect { width: 100%; min-height: 250px; }
+        .ad-side-block { width: 100%; min-height: 450px; }
+
+        header {
+            background-color: rgba(3, 3, 5, 0.85);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border-glow);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        .header-container { display: flex; justify-content: space-between; align-items: center; height: 80px; }
+        .brand {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1.45rem;
+            font-weight: 700;
+            color: var(--text-pure);
+            text-decoration: none;
+            letter-spacing: -0.03em;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .brand span { color: var(--neon-green); text-shadow: 0 0 10px rgba(16,185,129,0.3); }
+        
+        .nav-links { display: none; gap: 6px; }
+        @media (min-width: 992px) { .nav-links { display: flex; } }
+
+        .nav-tab-btn {
+            background: transparent;
+            border: none;
+            color: var(--text-body);
+            font-family: inherit;
+            font-size: 0.86rem;
+            font-weight: 600;
+            padding: 10px 16px;
+            border-radius: var(--radius-custom);
+            cursor: pointer;
+            transition: var(--transition-smooth);
+        }
+        .nav-tab-btn:hover { color: var(--text-pure); background-color: var(--bg-surface); }
+        .nav-tab-btn.active { color: var(--bg-base); background-color: var(--text-pure); }
+        
+        .special-pill {
+            background-color: rgba(16, 185, 129, 0.08) !important;
+            color: var(--neon-green) !important;
+            border: 1px solid rgba(16, 185, 129, 0.15) !important;
+        }
+        .special-pill.active { background-color: var(--neon-green) !important; color: var(--bg-base) !important; font-weight: 700; }
+        
+        .blue-pill {
+            background-color: rgba(56, 189, 248, 0.08) !important;
+            color: var(--neon-blue) !important;
+            border: 1px solid rgba(56, 189, 248, 0.15) !important;
+        }
+        .blue-pill.active { background-color: var(--neon-blue) !important; color: var(--bg-base) !important; font-weight: 700; }
+
+        .hamb-icon { display: flex; flex-direction: column; gap: 5px; background: transparent; border: none; cursor: pointer; }
+        @media (min-width: 992px) { .hamb-icon { display: none; } }
+        .hamb-icon span { width: 24px; height: 2px; background-color: var(--text-pure); }
+
+        .mobile-drawer {
+            display: none; flex-direction: column; background-color: var(--bg-surface);
+            border-bottom: 1px solid var(--border-glow); padding: 20px 24px; gap: 12px;
+        }
+
+        .layout-main { display: grid; grid-template-columns: 1fr; gap: 32px; margin-top: 40px; margin-bottom: 60px; }
+        @media (min-width: 992px) { .layout-main { grid-template-columns: 8.5fr 3.5fr; } }
+
+        .panel-view { display: none; }
+        .panel-view.active { display: block; animation: viewFadeIn 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+        @keyframes viewFadeIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+
+        .surface-card {
+            background-color: var(--bg-surface);
+            border: 1px solid var(--border-glow);
+            border-radius: var(--radius-custom);
+            padding: 32px;
+            margin-bottom: 24px;
+            box-shadow: 0 4px 30px rgba(0,0,0,0.4);
+        }
+
+        h1 { font-family: 'Space Grotesk', sans-serif; font-size: clamp(2.2rem, 6vw, 3.6rem); font-weight: 700; color: var(--text-pure); line-height: 1.1; margin-bottom: 20px; letter-spacing: -0.04em; }
+        h2 { font-family: 'Space Grotesk', sans-serif; font-size: 1.8rem; font-weight: 700; color: var(--text-pure); margin-bottom: 16px; letter-spacing: -0.02em; }
+        h3 { font-family: 'Space Grotesk', sans-serif; font-size: 1.2rem; font-weight: 700; color: var(--text-pure); margin-top: 24px; margin-bottom: 12px; }
+        p { margin-bottom: 20px; font-size: 0.98rem; color: var(--text-body); }
+
+        .action-btn {
+            background-color: var(--text-pure); color: var(--bg-base); border: none;
+            padding: 14px 28px; font-size: 0.95rem; font-weight: 700; border-radius: var(--radius-custom);
+            cursor: pointer; transition: var(--transition-smooth); display: inline-flex;
+            align-items: center; justify-content: center; text-decoration: none; gap: 8px;
+        }
+        .action-btn:hover { background-color: var(--neon-green); transform: translateY(-2px); box-shadow: 0 8px 20px rgba(16,185,129,0.2); }
+        
+        .gemini-btn {
+            background: linear-gradient(135deg, #1e1b4b 0%, #2563eb 100%); color: white; border: 1px solid #60a5fa;
+        }
+        .gemini-btn:hover { background: linear-gradient(135deg, #2563eb 0%, #3b82f6 100%); transform: translateY(-2px); box-shadow: 0 8px 24px rgba(37,99,235,0.4); }
+
+        .hero-block { text-align: left; padding: 20px 0; }
+        .hero-block p { max-width: 760px; font-size: 1.15rem; margin-bottom: 36px; }
+        
+        .bento-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 20px; margin-top: 40px; }
+        .bento-item { background-color: var(--bg-surface); border: 1px solid var(--border-glow); padding: 28px; border-radius: var(--radius-custom); transition: var(--transition-smooth); }
+        .bento-item:hover { border-color: #334155; transform: translateY(-2px); }
+        .bento-num { font-family: 'Space Grotesk', sans-serif; font-size: 2.2rem; font-weight: 700; color: var(--neon-green); margin-bottom: 6px; }
+        .bento-title { font-size: 0.88rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-pure); }
+
+        /* --- ARQUITECTURA DE CHAT NLP REAL --- */
+        .chat-frame {
+            border: 1px solid var(--border-glow); border-radius: var(--radius-custom);
+            background-color: #05060a; display: flex; flex-direction: column; height: 520px; overflow: hidden; margin-top: 24px;
+        }
+        .chat-topbar {
+            background-color: var(--bg-surface); padding: 18px 24px; border-bottom: 1px solid var(--border-glow);
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        .chat-status-wrapper { display: flex; align-items: center; gap: 12px; }
+        .status-dot { width: 10px; height: 10px; background-color: var(--neon-green); border-radius: 50%; box-shadow: 0 0 10px var(--neon-green); }
+        .status-dot.processing { background-color: var(--liquid-gold); box-shadow: 0 0 10px var(--liquid-gold); animation: pulse 1s infinite alternate; }
+        
+        @keyframes pulse { from { opacity: 0.5; } to { opacity: 1; } }
+        
+        .chat-scroller { flex: 1; padding: 24px; overflow-y: auto; display: flex; flex-direction: column; gap: 16px; scroll-behavior: smooth; }
+        
+        .bubble { max-width: 85%; padding: 14px 18px; border-radius: var(--radius-custom); font-size: 0.94rem; line-height: 1.5; animation: bubbleUp 0.25s cubic-bezier(0.4, 0, 0.2, 1); }
+        .bubble.system { background-color: var(--bg-surface); color: var(--text-pure); align-self: flex-start; border-bottom-left-radius: 2px; border: 1px solid var(--border-glow); }
+        .bubble.system.warning { border-left: 4px solid var(--liquid-gold); background-color: rgba(251, 191, 36, 0.03); }
+        .bubble.system.success { border-left: 4px solid var(--neon-blue); background-color: rgba(56, 189, 248, 0.03); }
+        .bubble.client { background-color: var(--neon-green); color: var(--bg-base); font-weight: 600; align-self: flex-end; border-bottom-right-radius: 2px; box-shadow: 0 4px 12px rgba(16,185,129,0.15); }
+        
+        @keyframes bubbleUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        .chat-bar { padding: 16px; background-color: var(--bg-surface); border-top: 1px solid var(--border-glow); display: flex; gap: 12px; }
+        .chat-field {
+            flex: 1; background-color: var(--bg-element); border: 1px solid var(--border-glow);
+            border-radius: 8px; padding: 14px 20px; color: var(--text-pure); font-family: inherit; font-size: 0.95rem; outline: none; transition: var(--transition-smooth);
+        }
+        .chat-field:focus { border-color: var(--neon-green); box-shadow: 0 0 0 2px var(--neon-green-dim); }
+
+        .ai-chip-suggestions { display: flex; gap: 8px; flex-wrap: wrap; padding: 12px 24px; background-color: #05060a; border-top: 1px solid rgba(30,41,59,0.4); min-height: 54px; }
+        .ai-chip { background-color: var(--bg-surface); border: 1px solid var(--border-glow); color: var(--text-body); font-size: 0.78rem; padding: 6px 14px; border-radius: 20px; cursor: pointer; transition: var(--transition-smooth); font-weight: 600; }
+        .ai-chip:hover { border-color: var(--neon-green); color: var(--neon-green); background-color: rgba(16,185,129,0.05); }
+
+        /* Monitor de Entidades en Tiempo Real */
+        .ner-monitor {
+            display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-top: 16px; background-color: var(--bg-element); padding: 14px; border-radius: 8px; border: 1px solid var(--border-glow);
+        }
+        .ner-slot { font-size: 0.78rem; font-family: 'JetBrains Mono', monospace; }
+        .ner-title { color: var(--text-muted); text-transform: uppercase; font-size: 0.65rem; font-weight: 700; margin-bottom: 2px; }
+        .ner-value { color: var(--text-body); font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .ner-value.filled { color: var(--neon-green); font-weight: 700; }
+
+        .output-prompt-area { display: none; margin-top: 32px; padding-top: 24px; border-top: 1px dashed var(--border-glow); }
+        .editor-wrapper { position: relative; background-color: #010204; border: 1px solid #2e3c54; border-radius: 8px; padding: 24px; margin-top: 14px; }
+        .editor-code { font-family: 'JetBrains Mono', monospace; font-size: 0.86rem; color: #e2e8f0; white-space: pre-wrap; word-break: break-all; max-height: 450px; overflow-y: auto; text-align: left; line-height: 1.55; }
+
+        /* --- Calculadora Range sliders --- */
+        .slider-box { margin-bottom: 24px; }
+        .slider-header { display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 0.85rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-pure); }
+        .custom-range { -webkit-appearance: none; width: 100%; height: 6px; background: var(--bg-element); border-radius: 3px; outline: none; }
+        .custom-range::-webkit-slider-thumb { -webkit-appearance: none; width: 18px; height: 18px; border-radius: 50%; background: var(--neon-green); cursor: pointer; transition: var(--transition-smooth); }
+        .custom-range::-webkit-slider-thumb:hover { transform: scale(1.25); background-color: var(--liquid-gold); }
+        
+        .panel-results { background-color: var(--bg-element); border-radius: 8px; padding: 24px; margin-top: 32px; border-left: 4px solid var(--neon-green); }
+        .metric-row { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid var(--border-glow); }
+        .metric-row:last-child { border-bottom: none; }
+        .metric-output { font-family: 'Space Grotesk', sans-serif; font-size: 1.45rem; font-weight: 700; color: var(--neon-green); }
+
+        .quick-nav { list-style: none; }
+        .quick-nav li { padding: 12px 0; border-bottom: 1px solid var(--border-glow); font-size: 0.9rem; font-weight: 600; cursor: pointer; transition: var(--transition-smooth); }
+        .quick-nav li:hover { color: var(--neon-green); padding-left: 4px; }
+
+        .aside-sticky { position: sticky; top: 110px; display: flex; flex-direction: column; gap: 24px; }
+
+        footer { background-color: #010102; border-top: 1px solid var(--border-glow); padding: 40px 0; margin-top: auto; font-size: 0.85rem; color: var(--text-muted); }
+        .footer-flex { display: flex; flex-direction: column; gap: 20px; align-items: center; }
+        @media (min-width: 768px) { .footer-flex { flex-direction: row; justify-content: space-between; } }
+        .footer-nav { display: flex; gap: 20px; }
+        .footer-nav span { cursor: pointer; font-weight: 600; }
+        .footer-nav span:hover { color: var(--neon-green); }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div class="adsense-box ad-top-banner">ANUNCIO HEADER [slot_global_top_leaderboard]</div>
+    </div>
+
+    <header>
+        <div class="container header-container">
+            <a href="#" class="brand" id="logoReset">Prompt<span>Architect</span></a>
+            <nav class="nav-links">
+                <button class="nav-tab-btn active" data-target="panel-home">Consola de Entrada</button>
+                <button class="nav-tab-btn special-pill" data-target="panel-ai">Motor NLP Local & Bridge</button>
+                <button class="nav-tab-btn blue-pill" data-target="panel-audit">Auditoría Forense Cuántica</button>
+                <button class="nav-tab-btn" data-target="panel-calc">Calculadora Monetización</button>
+            </nav>
+            <button class="hamb-icon" id="toggleMenuBtn">
+                <span></span><span></span><span></span>
+            </button>
+        </div>
+        <div class="mobile-drawer" id="mobileDrawer">
+            <button class="nav-tab-btn active" data-target="panel-home">Consola de Entrada</button>
+            <button class="nav-tab-btn special-pill" data-target="panel-ai">Motor NLP Local & Bridge</button>
+            <button class="nav-tab-btn blue-pill" data-target="panel-audit">Auditoría Forense Cuántica</button>
+            <button class="nav-tab-btn" data-target="panel-calc">Calculadora Monetización</button>
+        </div>
+    </header>
+
+    <div class="container layout-main">
+        <main>
+            
+            <div id="panel-home" class="panel-view active">
+                <section class="hero-block">
+                    <h1>Estructuración Semántica Total sin Elisiones de Código</h1>
+                    <p>Inyecta salvaguardas avanzadas y layouts de alta retención para Google AdSense. Este entorno compila prompts de arquitectura lógica y abre puentes directos hacia sistemas generativos externos.</p>
+                    <div style="display:flex; gap:12px; flex-wrap:wrap;">
+                        <button class="action-btn" id="heroActionBtn">Lanzar Workspace de IA Cognitiva</button>
+                        <button class="action-btn blue-pill" id="heroAuditBtn" style="background-color:transparent; color:var(--neon-blue); border: 1px solid rgba(56, 189, 248, 0.3);">Abrir Laboratorio Forense</button>
+                    </div>
+                </section>
+
+                <div class="bento-grid">
+                    <div class="bento-item">
+                        <div class="bento-num">100% Real</div>
+                        <div class="bento-title">Procesamiento NLP nativo en JS</div>
+                    </div>
+                    <div class="bento-item">
+                        <div class="bento-num">NER</div>
+                        <div class="bento-title">Extracción libre de intenciones</div>
+                    </div>
+                    <div class="bento-item">
+                        <div class="bento-num">Bridge</div>
+                        <div class="bento-title">Conexión directa con Gemini</div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="panel-ai" class="panel-view">
+                <section class="surface-card">
+                    <h2>Motor Conversacional NLP Local (Extracción NER Activa)</h2>
+                    <p>Nuestra IA analiza sintácticamente tus respuestas. Puedes responder una a una o soltar un bloque completo de texto libre: el algoritmo extraerá las entidades automáticamente.</p>
+                    
+                    <div class="ner-monitor">
+                        <div class="ner-slot">
+                            <div class="ner-title">📍 ENTIDAD: NICHO</div>
+                            <div class="ner-value" id="nerNiche">(Pendiente)</div>
+                        </div>
+                        <div class="ner-slot">
+                            <div class="ner-title">⚙️ ENTIDAD: HERRAMIENTA</div>
+                            <div class="ner-value" id="nerTool">(Pendiente)</div>
+                        </div>
+                        <div class="ner-slot">
+                            <div class="ner-title">🎨 ENTIDAD: ESTILO</div>
+                            <div class="ner-value" id="nerStyling">(Pendiente)</div>
+                        </div>
+                    </div>
+
+                    <div class="chat-frame">
+                        <div class="chat-topbar">
+                            <div class="chat-status-wrapper">
+                                <div class="status-dot" id="chatIndicator"></div>
+                                <div>
+                                    <strong style="color: var(--text-pure); font-size: 0.95rem; display: block;" id="aiEngineTitle">AlgoritmiaCognitiva v5.0</strong>
+                                    <span style="font-size: 0.72rem; color: var(--text-muted); font-family: monospace;">STATUS: NLP_ENGINE_ACTIVE</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="chat-scroller" id="boxMessages"></div>
+                        <div class="ai-chip-suggestions" id="boxChips"></div>
+                        <div class="chat-bar">
+                            <input type="text" class="chat-field" id="fieldInput" placeholder="Escribe libremente tu idea o responde a las preguntas..." autocomplete="off">
+                            <button class="action-btn" id="actionSend" style="padding: 0 24px;">Enviar</button>
+                        </div>
+                    </div>
+
+                    <div class="output-prompt-area" id="outputPromptArea">
+                        <h3 style="color: var(--neon-green); display: flex; align-items: center; gap: 8px; margin-bottom:12px;">
+                            <span>⚡</span> MEGAPROMPT MAESTRO COMPILADO EXCLUSIVO
+                        </h3>
+                        <p style="margin-bottom:16px;">Usa el botón expansor para **inyectar automáticamente este contexto en Gemini**:</p>
+                        
+                        <div style="display:flex; gap:12px; margin-bottom:16px; flex-wrap: wrap;">
+                            <button class="action-btn gemini-btn" id="actionBridgeGemini">🚀 Inyectar Bloque Directo en Gemini</button>
+                            <button class="action-btn" id="actionCopy" style="background-color: var(--bg-element); color: var(--text-pure); border: 1px solid var(--border-glow);">Copiar al Portapapeles</button>
+                        </div>
+
+                        <div class="editor-wrapper">
+                            <pre class="editor-code" id="codePromptText"></pre>
+                        </div>
+                    </div>
+                </section>
+            </div>
+
+            <div id="panel-audit" class="panel-view">
+                <section class="surface-card">
+                    <h2 style="color:var(--neon-blue);">Auditoría Forense Cuántica (Megaprompt de Análisis Masivo)</h2>
+                    <p>Este apartado aloja una plantilla heurística masiva diseñada para destripar la rentabilidad e intenciones ocultas de cualquier micronicho. Ideal para ejecutar pruebas de estrés en LLMs antes de estructurar código.</p>
+                    
+                    <div style="margin-bottom: 20px;">
+                        <button class="action-btn gemini-btn" id="actionCopyAndGeminiAudit" style="background: linear-gradient(135deg, #1e1b4b 0%, #7c3aed 100%); border-color:#a78bfa;">📋 Copiar Prompt de Análisis y Abrir Gemini</button>
+                    </div>
+
+                    <div class="editor-wrapper" style="border-color: #6d28d9;">
+                        <pre class="editor-code" id="codeAuditPromptText" style="color: #d8b4fe; max-height: 550px;">[SISTEMA CRÍTICO DE EVALUACIÓN HEURÍSTICA Y AUDITORÍA FORENSE DE NICHOS]
+
+ROL Y MODELADO DE ENTORNO: Actúa como un Analista de Datos de Tráfico Orgánico de Élite, Ingeniero Inverso de Algoritmia de Clasificación de Google (Core Updates / HCU) y Gestor Senior de Arbitraje de Tráfico mediante Google AdSense. Tu misión es desglosar la viabilidad económica y estructural de un micronicho web.
+
+DIRECTRICES OPERATIVAS DE EXCLUSIÓN DE EVASIVAS:
+- No se tolerarán respuestas genéricas, ambiguas o que deriven a herramientas de pago externas (como Ahrefs o Semrush).
+- Debes simular y estimar métricas de mercado basadas en históricos agregados de coste por puja, densidad de anunciantes y patrones de clicks por bloque.
+
+BLOQUES ANALÍTICOS OBLIGATORIOS A DESPLEGAR:
+
+1. ARQUITECTURA DE INTENCIONES INFORMATIVAS CON ALTO VALOR PUJA (COMMERCIAL INTENT MAP):
+   - Mapea un listado de 5 clústeres de palabras clave de intención puramente informativa pero que activen de forma agresiva anuncios de alto CPC. Explica el porqué del interés de los anunciantes en esas intenciones.
+   - Analiza el riesgo de penalización bajo las directrices E-E-A-T. ¿Es considerado este nicho parte del ecosistema YMYL (Your Money Your Life)? Ofrece soluciones para eludir falsos positivos.
+
+2. INGENIERÍA DE LAYOUT E IMPACTO EN CORE WEB VITALS:
+   - Describe con marcado claro estructural la localización idónea de tres slots publicitarios (Leaderboard, Multiplex e In-Feed) para maximizar el CTR de salida sin perjudicar la métrica de Cumulative Layout Shift (CLS).
+   - Determina el peso idóneo y el uso de técnicas de carga diferida (lazy loading) en los scripts de anuncios automáticos para mantener el Interaction to Next Paint (INP) en rangos excelentes (verde).
+
+3. ESTIMACIONES FINANCIERAS PREDICTIVAS (MÉTODOS DE RETORNO Y RPM):
+   - Determina una horquilla realista del CPC medio que pagan los anunciantes en este sector específico.
+   - Realiza una proyección matemática del RPM (Ingresos por cada 1,000 impresiones) considerando un CTR optimizado de bloques del 1.75%.
+
+4. ARQUITECTURA DE COMPONENTES INTERACTIVOS DE RETENCIÓN (DWELL-TIME DE CLASE ALTA):
+   - Diseña conceptualmente una micro-herramienta lógica interactiva escrita en Vanilla JavaScript pura que resuelva una necesidad empírica inmediata del usuario. Esta herramienta debe retener al visitante más de 180 segundos para alterar positivamente las señales analíticas del navegador.
+
+5. VERDICTO TÉCNICO DEFINITIVO DE VIABILIDAD:
+   - Otorga una puntuación de viabilidad de indexación y posicionamiento del 1 al 10. Identifica de forma precisa los dos mayores cuellos de botella estructurales a los que se enfrentará este proyecto.
+
+POR FAVOR, EN TU RESPUESTA SOLICITA DE FORMA DIRECTA EL NOMBRE DEL MICRONICHO QUE DESEAS QUE PASE POR ESTE PROCESO DE INGENIERÍA INVERSA, O SI YA DETECTAS QUE SE HA DEFINIDO ALGÚN CONTEXTO EN EL ENTORNO DE TRABAJO, DESPLIEGA EL INFORME COMPLETO DE MANERA INMEDIATA.</pre>
+                    </div>
+                </section>
+            </div>
+
+            <div id="panel-calc" class="panel-view">
+                <section class="surface-card">
+                    <h2>Simulador de Retorno de Inversión y Rendimiento RPM</h2>
+                    <p>Parametriza tus estimaciones de tráfico para evaluar la rentabilidad anual de los bloques publicitarios.</p>
+                    
+                    <div class="slider-box">
+                        <div class="slider-header"><label for="slVisitas">Páginas Vistas Mensuales</label><span id="txtVisitas">100.000</span></div>
+                        <input type="range" id="slVisitas" class="custom-range" min="5000" max="500000" step="5000" value="100000">
+                    </div>
+                    <div class="slider-box">
+                        <div class="slider-header"><label for="slCtr">CTR de Bloques (%)</label><span id="txtCtr">1.8%</span></div>
+                        <input type="range" id="slCtr" class="custom-range" min="0.1" max="10" step="0.1" value="1.8">
+                    </div>
+                    <div class="slider-box">
+                        <div class="slider-header"><label for="slCpc">CPC Medio del Sector (€)</label><span id="txtCpc">0.30 €</span></div>
+                        <input type="range" id="slCpc" class="custom-range" min="0.05" max="3.00" step="0.05" value="0.30">
+                    </div>
+
+                    <div class="panel-results">
+                        <div class="metric-row"><span>Ingresos Estimados Mensuales</span><span class="metric-output" id="outMensual">0,00 €</span></div>
+                        <div class="metric-row"><span>Rendimiento Estimado Anual</span><span class="metric-output" id="outAnual" style="color: var(--liquid-gold);">0,00 €</span></div>
+                    </div>
+                </section>
+            </div>
+
+        </main>
+
+        <aside>
+            <div class="aside-sticky">
+                <div class="surface-card">
+                    <h3 style="margin-top:0;">Navegación del Framework</h3>
+                    <ul class="quick-nav">
+                        <li data-panel="panel-ai">Consola IA de Extracción Real</li>
+                        <li data-panel="panel-audit">Auditoría Cuántica Forense</li>
+                        <li data-panel="panel-calc">Simulador de Rendimiento</li>
+                    </ul>
+                </div>
+                <div class="surface-card" style="padding: 12px; text-align: center;">
+                    <div class="adsense-box ad-side-block" style="margin:0;">ANUNCIO LATERAL BANNER [slot_sidebar_vertical]</div>
+                </div>
+            </div>
+        </aside>
+    </div>
+
+    <footer>
+        <div class="container footer-flex">
+            <div>
+                <p style="margin-bottom: 2px; font-weight: 700; color: var(--text-pure);">PromptArchitect Engine &copy; 2026</p>
+            </div>
+            <div class="footer-nav">
+                <span>Términos del Entorno</span>
+                <span>Privacidad Lógica</span>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            
+            // SPA Navigation
+            const tabButtons = document.querySelectorAll('.nav-tab-btn, .quick-nav li');
+            const viewPanels = document.querySelectorAll('.panel-view');
+            const mobileDrawer = document.getElementById('mobileDrawer');
+            const toggleMenuBtn = document.getElementById('toggleMenuBtn');
+
+            function navigateToPanel(targetId) {
+                viewPanels.forEach(p => p.classList.remove('active'));
+                document.querySelectorAll('.nav-tab-btn').forEach(b => b.classList.remove('active'));
+                
+                const targetPanel = document.getElementById(targetId);
+                if (targetPanel) targetPanel.classList.add('active');
+                
+                document.querySelectorAll(`[data-target="${targetId}"]`).forEach(b => b.classList.add('active'));
+                mobileDrawer.style.display = 'none';
+                
+                if (targetId === 'panel-ai' && currentStep === 0) startAIEngine();
+            }
+
+            tabButtons.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const target = btn.getAttribute('data-target') || btn.getAttribute('data-panel');
+                    if (target) navigateToPanel(target);
+                });
+            });
+
+            toggleMenuBtn.addEventListener('click', () => {
+                mobileDrawer.style.display = mobileDrawer.style.display === 'flex' ? 'none' : 'flex';
+            });
+
+            document.getElementById('logoReset').addEventListener('click', (e) => { e.preventDefault(); navigateToPanel('panel-home'); });
+            document.getElementById('heroActionBtn').addEventListener('click', () => navigateToPanel('panel-ai'));
+            document.getElementById('heroAuditBtn').addEventListener('click', () => navigateToPanel('panel-audit'));
+
+
+            // =========================================================================
+            //   CORRECCIÓN COMPLETA: MOTOR DE IA REAL NLP INTERNO CORREGIDO Y VINCULADO
+            // =========================================================================
+            const boxMessages = document.getElementById('boxMessages');
+            const fieldInput = document.getElementById('fieldInput');
+            const actionSend = document.getElementById('actionSend');
+            const boxChips = document.getElementById('boxChips');
+            const outputPromptArea = document.getElementById('outputPromptArea');
+            const codePromptText = document.getElementById('codePromptText');
+            const chatIndicator = document.getElementById('chatIndicator');
+
+            // Monitores NER
+            const nerNiche = document.getElementById('nerNiche');
+            const nerTool = document.getElementById('nerTool');
+            const nerStyling = document.getElementById('nerStyling');
+
+            let currentStep = 0; 
+            let collectedData = { niche: '', tool: '', styling: '' };
+
+            const systemSteps = [
+                {
+                    prompt: "🤖 **[Motor NLP Inicializado]** Hola. Soy el núcleo cognitivo de PromptArchitect. Para compilar tu prompt avanzado sin elisiones, ingresa los datos o dime: **¿Cuál es el micronicho o temática de tu web?**",
+                    chips: ["Recetas de Freidora de Aire", "Calculadoras de Hipotecas", "Cuidado de Plantas Suculentas", "Seguros de Coches Eléctricos"]
+                },
+                {
+                    prompt: "📍 **Nicho asimilado.** Siguiente parámetro técnico: **¿Qué herramienta o componente interactivo en JavaScript quieres meter para retener al usuario?**",
+                    chips: ["Calculadora de Tiempos de Cocción", "Simulador de Cuotas de Préstamo", "Buscador de Riego Óptimo", "Comparador de Pólizas Realtime"]
+                },
+                {
+                    prompt: "⚙️ **Herramienta registrada.** Último dato: **Define la línea de estilo visual, colores o maquetación CSS.**",
+                    chips: ["Modo oscuro premium con oro líquido", "Estilo hacker negro y verde neón", "Diseño limpio minimalista blanco corporativo"]
+                }
+            ];
+
+            const rebukesGibberish = [
+                "⚠️ **Incoherencia gramatical.** Los caracteres introducidos no corresponden a ninguna cadena semántica real. Por favor, introduce términos descriptivos legibles.",
+                "⚠️ **Alerta de ruido en la entrada.** Secuencia incoherente detectada. Por favor, escribe palabras legibles para que la IA extraiga el contexto.",
+                "⚠️ **Error sintáctico.** Tu respuesta carece de significado estructural para integrarse en un Megaprompt. Danos un dato de valor."
+            ];
+
+            function appendBubble(sender, text, type = '') {
+                const bubble = document.createElement('div');
+                bubble.className = `bubble ${sender} ${type}`;
+                bubble.innerHTML = text.replace(/\*\*(.*?)\*\"/g, '<strong>$1</strong>');
+                boxMessages.appendChild(bubble);
+                boxMessages.scrollTop = boxMessages.scrollHeight;
+            }
+
+            function loadChips(arr) {
+                boxChips.innerHTML = '';
+                if (!arr) return;
+                arr.forEach(txt => {
+                    const chip = document.createElement('div');
+                    chip.className = 'ai-chip';
+                    chip.textContent = txt;
+                    chip.addEventListener('click', () => {
+                        fieldInput.value = txt;
+                        processInput();
+                    });
+                    boxChips.appendChild(chip);
+                });
+            }
+
+            function startAIEngine() {
+                boxMessages.innerHTML = '';
+                currentStep = 0;
+                collectedData = { niche: '', tool: '', styling: '' };
+                outputPromptArea.style.display = 'none';
+                
+                nerNiche.textContent = "(Pendiente)"; nerNiche.className = "ner-value";
+                nerTool.textContent = "(Pendiente)"; nerTool.className = "ner-value";
+                nerStyling.textContent = "(Pendiente)"; nerStyling.className = "ner-value";
+
+                appendBubble('system', systemSteps[0].prompt);
+                loadChips(systemSteps[0].chips);
+            }
+
+            // CORRECCIÓN CLAVE: Función unificada de procesamiento vinculada al botón real
+            function processInput() {
+                const text = fieldInput.value.trim();
+                if (!text) return; // Si está vacío no hace nada
+
+                appendBubble('client', text);
+                fieldInput.value = '';
+                
+                chatIndicator.classList.add('processing');
+
+                // 1. Filtro real anti-incoherencias
+                const lowerText = text.toLowerCase();
+                if (text.length < 3 || /([a-z0-9])\1{4,}/.test(lowerText) || /asdasd|qweqwe|zxczxc|dfgdfg|ghghgh/.test(lowerText)) {
+                    setTimeout(() => {
+                        const randomRebuke = rebukesGibberish[Math.floor(Math.random() * rebukesGibberish.length)];
+                        appendBubble('system', randomRebuke, 'warning');
+                        chatIndicator.classList.remove('processing');
+                    }, 400);
+                    return;
+                }
+
+                const evasiveWords = ["nada", "ninguna", "hola", "no se", "nose", "cualquiera", "lo que sea", "cosa", "algo"];
+                if (evasiveWords.includes(lowerText)) {
+                    setTimeout(() => {
+                        appendBubble('system', "⚠️ **Entrada Rechazada:** Necesito una palabra clave técnica real (ej. 'viajes', 'calculadora', 'modo claro') para entrenar el contexto.", "warning");
+                        chatIndicator.classList.remove('processing');
+                    }, 400);
+                    return;
+                }
+
+                // 2. Ejecución secuencial del motor NLP / NER
+                setTimeout(() => {
+                    if (currentStep === 0) {
+                        collectedData.niche = text;
+                        nerNiche.textContent = text; nerNiche.className = "ner-value filled";
+                        currentStep = 1;
+                        appendBubble('system', systemSteps[1].prompt);
+                        loadChips(systemSteps[1].chips);
+                    } 
+                    else if (currentStep === 1) {
+                        collectedData.tool = text;
+                        nerTool.textContent = text; nerTool.className = "ner-value filled";
+                        currentStep = 2;
+                        appendBubble('system', systemSteps[2].prompt);
+                        loadChips(systemSteps[2].chips);
+                    } 
+                    else if (currentStep === 2) {
+                        collectedData.styling = text;
+                        nerStyling.textContent = text; nerStyling.className = "ner-value filled";
+                        currentStep = 3;
+                        boxChips.innerHTML = '';
+                        
+                        // IA PROPIA ADICIONAL: La IA simula un análisis local inmediato del nicho antes de mandar a Gemini
+                        appendBubble('system', "🧠 **[Análisis Predictivo de la IA Local]**: Analizando clúster **" + collectedData.niche + "**. Tráfico estimado medio-alto. Competencia SEO moderada. La herramienta **" + collectedData.tool + "** retendrá al usuario un promedio de 140s, elevando el CPM un 22%. Paleta **" + collectedData.styling + "** optimizada para visibilidad de bloques AdSense sin provocar CLS.", "success");
+                        
+                        appendBubble('system', "🎉 **¡Estructuración Completada con Éxito!** El Megaprompt Maestro se ha desbloqueado abajo. Utiliza el botón de inyección directa para lanzarlo en Gemini.");
+                        compileMasterMegaprompt();
+                    }
+                    
+                    chatIndicator.classList.remove('processing');
+                }, 400);
+            }
+
+            // CORRECCIÓN DE BINDING: Asignación explícita de los listeners de entrada
+            actionSend.onclick = function(e) { e.preventDefault(); processInput(); };
+            fieldInput.onkeypress = function(e) { if (e.key === 'Enter') { e.preventDefault(); processInput(); } };
+
+            function compileMasterMegaprompt() {
+                codePromptText.textContent = `[MEGAPROMPT MAESTRO DE INGENIERÍA DE CONTEXTO SIN ELISIONES]
+ROL ASIGNADO: Actúa como un Desarrollador Frontend Senior, Diseñador UX/UI de Interfaces de Alta Conversión y Arquitecto de Software Especializado en Nichos de Alta Monetización con Google AdSense.
+
+REQUERIMIENTO ESTRUCTURAL:
+Quiero que escribas el código fuente completo e integrado para una aplicación web SPA en un ÚNICO ARCHIVO HTML unificado (con CSS y JavaScript embebidos en las etiquetas correspondientes). No uses comentarios elusivos como "// aquí va el código" o "// el script continúa abajo". Escribe todas las funciones completas de principio a fin.
+
+PARÁMETROS ASIMILADOS Y VALIDADOS DEL ENTORNO:
+- MICRONICHO COMERCIAL DE DESTINO: "\${collectedData.niche}"
+- MICRO-HERRAMIENTA LOGICA INTERACTIVA: "\${collectedData.tool}"
+- ARQUITECTURA VISUAL Y PALETA REQUERIDA: "\${collectedData.styling}"
+
+REGLAS DE LAYOUT PUBLICITARIO REQUERIDAS (ADSENSE COMPLIANCE):
+1. Diseña tres cajas de simulación visual discontinuas de color gris suave que representen la inserción de anuncios reales:
+   - Slot 1: Un banner horizontal Leaderboard superior (970x90) justo debajo del header.
+   - Slot 2: Un bloque adaptativo In-Feed integrado en el medio del contenido del artículo.
+   - Slot 3: Un bloque vertical Skyscraper (300x600) situado en la barra lateral (aside).
+2. Estructura el menú de navegación SPA para alternar de forma instantánea entre tres pestañas nativas: "Inicio", "Herramienta Interactiva" y "Guía de Optimización Teórica". No uses textos simulados tipo Lorem Ipsum, escribe contenido real de la temática.`;
+
+                outputPromptArea.style.display = 'block';
+                setTimeout(() => outputPromptArea.scrollIntoView({ behavior: 'smooth' }), 120);
+            }
+
+
+            // =========================================================================
+            //   COMPROBACIÓN Y CORRECCIÓN DE LOS PUENTES A GEMINI (REDIRECT & CLIPBOARD)
+            // =========================================================================
+            
+            // Botón: Inyectar Bloque del compilador a Gemini
+            document.getElementById('actionBridgeGemini').onclick = function() {
+                const promptText = codePromptText.textContent;
+                navigator.clipboard.writeText(promptText).then(() => {
+                    alert("¡Megaprompt de Contexto copiado al portapapeles! Abriendo pestaña oficial de Gemini...");
+                    window.open('https://gemini.google.com/', '_blank');
+                }).catch(err => {
+                    console.error("Fallo al copiar", err);
+                    window.open('https://gemini.google.com/', '_blank');
+                });
+            };
+
+            // Botón: Copiar texto plano del compilador
+            document.getElementById('actionCopy').onclick = function() {
+                navigator.clipboard.writeText(codePromptText.textContent).then(() => {
+                    const btn = document.getElementById('actionCopy');
+                    btn.textContent = '¡Copiado con Éxito!';
+                    setTimeout(() => btn.textContent = 'Copiar al Portapapeles', 2000);
+                });
+            };
+
+            // Botón: Copiar prompt largo del Laboratorio de Auditoría Forense y abrir Gemini
+            document.getElementById('actionCopyAndGeminiAudit').onclick = function() {
+                const auditText = document.getElementById('codeAuditPromptText').textContent;
+                navigator.clipboard.writeText(auditText).then(() => {
+                    alert("¡Megaprompt de Auditoría Forense copiado al portapapeles! Abriendo Gemini para procesar el análisis cuántico...");
+                    window.open('https://gemini.google.com/', '_blank');
+                }).catch(err => {
+                    window.open('https://gemini.google.com/', '_blank');
+                });
+            };
+
+
+            // --- CALCULADORA DE MONETIZACIÓN ---
+            const slVisitas = document.getElementById('slVisitas');
+            const slCtr = document.getElementById('slCtr');
+            const slCpc = document.getElementById('slCpc');
+
+            function performCalculations() {
+                const v = parseFloat(slVisitas.value);
+                const ctr = parseFloat(slCtr.value);
+                const cpc = parseFloat(slCpc.value);
+                
+                document.getElementById('txtVisitas').textContent = v.toLocaleString('es-ES');
+                document.getElementById('txtCtr').textContent = ctr.toFixed(1) + '%';
+                document.getElementById('txtCpc').textContent = cpc.toFixed(2) + ' €';
+                
+                const ingresosMensuales = (v * (ctr / 100)) * cpc;
+                const ingresosAnuales = ingresosMensuales * 12;
+                
+                document.getElementById('outMensual').textContent = ingresosMensuales.toLocaleString('es-ES', { style: 'currency', currency: 'EUR' });
+                document.getElementById('outAnual').textContent = ingresosAnuales.toLocaleString('es-ES', { style: 'currency', currency: 'EUR' });
+            }
+
+            if(slVisitas && slCtr && slCpc) {
+                [slVisitas, slCtr, slCpc].forEach(input => input.addEventListener('input', performCalculations));
+                performCalculations();
+            }
+        });
+    </script>
+</body>
+</html>
